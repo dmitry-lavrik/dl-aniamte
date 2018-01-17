@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show/hide with transition</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="../dist/dl-animate.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Insert element before other</h2>
+        <hr>
+        <button class="btn btn-success add-item">Append</button>
+        <hr>
+        <ul class="list-group some-list">
+            <li class="list-group-item">Some item</li>
+        </ul>
+    </div>
+    <script>
+        var ul = document.querySelector('.some-list');
+
+        document.querySelector('.add-item').addEventListener('click', function(){
+            var li = document.createElement('li');
+            li.innerHTML = Math.random();
+            li.className = 'list-group-item';
+
+            DLAnimate.insert(ul, li, {
+                name: 'fade'
+            }, ul.children[0]);
+        });
+    </script>
+    <style>
+        .fade-enter{
+            opacity: 0;
+            transform: translateX(-100px);
+        }
+
+        .fade-enter-active{
+            transition: opacity 1s, transform 1s;
+        }
+
+        .fade-enter-to{
+            
+        }
+    </style>
+</body>
+</html>

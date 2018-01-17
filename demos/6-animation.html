@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show/hide with transition</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="../dist/dl-animate.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Keyframes + animation</h2>
+        <hr>
+        <button class="btn btn-primary show-alert">Show</button>
+        <button class="btn btn-warning hide-alert">Hide</button>
+        <hr>
+        <div class="anim-target alert alert-success">
+            <p>Some text</p>
+            <p>Some text</p>
+            <p>Some text</p>
+            <p>Some text</p>
+        </div>
+        <hr>
+        <p>Other content</p>
+    </div>
+    <script>
+        var alert = document.querySelector('.anim-target');
+
+        document.querySelector('.show-alert').addEventListener('click', function(){
+            DLAnimate.show(alert, {
+                name: 'fade',
+                track: 'animation'
+            });
+        });
+
+        document.querySelector('.hide-alert').addEventListener('click', function(){
+            DLAnimate.hide(alert, {
+                name: 'fade',
+                track: 'animation'
+            });
+        });
+    </script>
+    <style>
+        .anim-target{
+            display: none;
+        }
+
+        .fade-enter{
+            visibility: hidden;
+        }
+
+        .fade-enter-active{
+            animation: someIn 0.5s linear;
+        }
+
+        .fade-enter-to{
+            
+        }
+
+        .fade-leave{
+            
+        }
+
+        .fade-leave-active{
+            animation: someOut 0.5s linear forwards;
+        }
+
+        .fade-leave-to{
+            
+        }
+
+        @keyframes someIn{
+            from{
+                transform: translateX(50px) scale(0.8);
+                opacity: 0;
+            }
+            to{
+                transform: translateX(0px) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes someOut{
+            from{
+                transform: translateX(0px) scale(1);
+                opacity: 1;
+            }
+            to{
+                transform: translateX(50px) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+    </style>
+</body>
+</html>

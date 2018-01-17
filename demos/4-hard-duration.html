@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show/hide with transition</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="../dist/dl-animate.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Hard duration time with js</h2>
+        <hr>
+        <button class="btn btn-primary show-alert">Show</button>
+        <button class="btn btn-warning hide-alert">Hide</button>
+        <hr>
+        <div class="anim-target alert alert-success">
+            <p>Some text</p>
+            <p>Some text</p>
+            <p>Some text</p>
+            <p>Some text</p>
+        </div>
+        <hr>
+        <p>Other content</p>
+    </div>
+    <script>
+        var alert = document.querySelector('.anim-target');
+
+        document.querySelector('.show-alert').addEventListener('click', function(){
+            DLAnimate.show(alert, {
+                name: 'fade',
+                track: 'none',
+                duration: 200
+            });
+        });
+
+        document.querySelector('.hide-alert').addEventListener('click', function(){
+            DLAnimate.hide(alert, {
+                name: 'fade',
+                track: 'none',
+                duration: 200
+            });
+        });
+    </script>
+    <style>
+        .fade-enter{
+            opacity: 0;
+            transform: translateX(-100px);
+        }
+
+        .fade-enter-active{
+            transition: opacity 1s, transform 1s;
+        }
+
+        .fade-enter-to{
+            
+        }
+
+        .fade-leave{
+            
+        }
+
+        .fade-leave-active{
+            transition: opacity 1s, transform 1s;
+        }
+
+        .fade-leave-to{
+            opacity: 0;
+            transform: translateX(100px);
+        }
+    </style>
+</body>
+</html>
