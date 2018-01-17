@@ -13,7 +13,7 @@ and 3 classes for hide element:
 
 ## Install
 
-### Babel
+### NPM + Babel
 ```
 $ npm i dl-animate --save
 ```
