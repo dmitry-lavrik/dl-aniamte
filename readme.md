@@ -28,7 +28,7 @@ let anyName = new DLAnimate();
 <script src="https://unpkg.com/dl-animate"></script>
 ```
 ## Usage samples on jsfiddle
-You also can find this samples on https://github.com/dmitry-lavrik/dl-aniamte/ in demos folder  
+You also can find this samples on https://github.com/dmitry-lavrik/dl-aniamte/tree/master/demos  
 
 | Description | Link |
 |---|---|
@@ -60,7 +60,8 @@ If insertBeforeElement is other child of parentElemenet, newElement will insert 
 Hide element with animation and then remove element from DOM.
 
 ## Options
-It's very important argument for all methods!
+It's very important argument for all methods!  
+
 | Name  | Type  | Description  | Default  | Sample  |
 |---|---|---|---|---|
 | name  | String |  string for class names generation |  dl-nothing-doing-class | https://jsfiddle.net/88fg95w1/
