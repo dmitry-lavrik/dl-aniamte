@@ -2,7 +2,8 @@
 
 ## Idea
 
-Often we need animate DOM elements, when it show, hide, insert or remove. Make it with javascript.
+Often we need animate DOM elements, when it show, hide, insert or remove.  
+
 Animations only for javascript have long been outdated. Javascript should control the animation described in CSS.  
 
 This library control CSS animations with 3 classes for show element: 
@@ -23,7 +24,7 @@ let anyName = new DLAnimate();
 ```
 
 ### Simple
-```
+```html
 <script src="https://unpkg.com/dl-animate"></script>
 ```
 ## Usage samples on jsfiddle
@@ -48,8 +49,10 @@ Show element with animation only if element is hidden now.
 Hide element with animation only if element is visible now.
 
 ### insert(parentElemenet, newElement, options, [insertBeforeElement = null])
-Insert newElement to parentElemenet and animate after it. 
-If insertBeforeElement is null, newElement append in parentElemenet.
+Insert newElement to parentElemenet and animate after it.  
+
+If insertBeforeElement is null, newElement append in parentElemenet.  
+
 If insertBeforeElement is other child of parentElemenet, newElement will insert before insertBeforeElement.
 
 ### remove(DOMElemenet, options)
