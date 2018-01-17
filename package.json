@@ -1,6 +1,6 @@
 {
   "name": "dl-animate",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "main": "dist/dl-animate.js",
   "dependencies": {},
   "devDependencies": {
@@ -24,5 +24,13 @@
     "css",
     "transitions",
     "animation"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dmitry-lavrik/dl-aniamte.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dmitry-lavrik/dl-aniamte/issues"
+  },
+  "homepage": "https://github.com/dmitry-lavrik/dl-aniamte#readme"
 }

@@ -28,17 +28,18 @@ let anyName = new DLAnimate();
 <script src="https://unpkg.com/dl-animate"></script>
 ```
 ## Usage samples on jsfiddle
-You also can find this samples on github in demos folder
-| Description  | Link  |
+You also can find this samples on https://github.com/dmitry-lavrik/dl-aniamte/ in demos folder  
+
+| Description | Link |
 |---|---|
-| Nice show/hide element  |  https://jsfiddle.net/88fg95w1/ |
-| Nice append/remove element  |  https://jsfiddle.net/eLhnzLL7/ |
-| Events callback  |  https://jsfiddle.net/n8r78jr4/ |
-| Hard duration  |  https://jsfiddle.net/hcdcx51f/ |
-| Insert element before other  |  https://jsfiddle.net/4qnzL450/ |
-| Keyframes + animation  |  https://jsfiddle.net/98a4aeee/ |
-| User classNames  |  https://jsfiddle.net/3vn9j63n/ |
-| Start values in enter-leave classes  |  https://jsfiddle.net/L74sb1nh/ |
+| Nice show/hide element |  https://jsfiddle.net/88fg95w1/ |
+| Nice append/remove element |  https://jsfiddle.net/eLhnzLL7/ |
+| Events callback |  https://jsfiddle.net/n8r78jr4/ |
+| Hard duration |  https://jsfiddle.net/hcdcx51f/ |
+| Insert element before other |  https://jsfiddle.net/4qnzL450/ |
+| Keyframes + animation | https://jsfiddle.net/98a4aeee/ |
+| User classNames | https://jsfiddle.net/3vn9j63n/ |
+| Start values in enter-leave classes | https://jsfiddle.net/L74sb1nh/ |
 
 ## Methods of DLAnimate instance
 
