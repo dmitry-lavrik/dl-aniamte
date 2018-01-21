@@ -2,14 +2,13 @@
 
 ## Idea
 
-Often we need animate DOM elements, when it show, hide, insert or remove.  
+Often we need to animate DOM elements, in particular when they are shows up or hides.
 
-Animations only for javascript have long been outdated. Javascript should control the animation described in CSS.  
-
-This library control CSS animations with 3 classes for show element: 
+This library provides native CSS3 animations and transitions by add/remove 3 special animation classes: 
 *-enter, *-enter-active, *-enter-active-to 
 and 3 classes for hide element:
 *-leave, *-leave-active, *-leave-active-to 
+
 
 ## Install
 
