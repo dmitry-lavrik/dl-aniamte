@@ -1,16 +1,34 @@
+! function(){
 class DLAnimate{
 	constructor(){
+		let raf = (function () {
+			let clock = Date.now();
+			return function (callback) {
+				let currentTime = Date.now();
+
+				if (currentTime - clock > 16) {
+					clock = currentTime;
+					callback(currentTime);
+				} else {
+					setTimeout(function () {
+						raf(callback);
+					}, 0);
+				}
+			};
+		})();
+		
 		this.raf = window.requestAnimationFrame || 
 				  window.webkitRequestAnimationFrame ||
-				  window.msRequestAnimationFrame;		  
+				  window.msRequestAnimationFrame || raf;  
 
 		let divTest = document.createElement("div");
 
-		/* checking browser for necessary opportunities */
+		/* checking needed features */
 		this.canAnimate = (typeof this.raf === "function") &&
 					  ("classList" in divTest) &&
 					  typeof divTest.style.transition !== undefined;
 
+		//change this.raf() func. context to window
 		if(this.canAnimate){
 			this.raf = this.raf.bind(window);
 		}
@@ -21,10 +39,11 @@ class DLAnimate{
 	}
 
 	show(el, options = {}){
+		//skip animate if requestAnimationFrame is not supported
 		if(!this.canAnimate){
 			this._show(el);
 		}
-
+		// return if element is hidden
 		if(!this._isHidden(el)){
 			return;
 		}
@@ -203,18 +222,8 @@ class DLAnimate{
 		}
 	}
 
-	_mergeSettings(defaults, extra){
-		if(typeof extra !== "object"){
-			return defaults;
-		}
-
-		let res = {};
-
-		for(let k in defaults){
-			res[k] = (extra[k] !== undefined) ? extra[k] : defaults[k];
-		}
-		
-		return res;
+	_mergeSettings(def, extra){
+		return typeof extra !== "object" ? def : Object.assign(def, extra);
 	}
 
 	_hide(el){
@@ -237,3 +246,5 @@ class DLAnimate{
 		return getComputedStyle(el)[prop];
 	}
 }
+window.DLAnimate = new DLAnimate();
+}();
