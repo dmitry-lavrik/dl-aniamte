@@ -1,239 +1,275 @@
-class DLAnimate{
-	constructor(){
-		this.raf = window.requestAnimationFrame || 
-				  window.webkitRequestAnimationFrame ||
-				  window.msRequestAnimationFrame;		  
+!function () {
+    class DLAnimate {
+        constructor() {
+            //create raf function
+            let raf = window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function (callback) {
+                    window.setTimeout(callback, 1000 / 60);
+                };
+            //bind context window
+            this.raf = raf.bind(window);
 
-		let divTest = document.createElement("div");
+            let divTest = document.createElement("div");
 
-		/* checking browser for necessary opportunities */
-		this.canAnimate = (typeof this.raf === "function") &&
-					  ("classList" in divTest) &&
-					  typeof divTest.style.transition !== undefined;
+            /* checking needed features */
+            this.canAnimate = (typeof this.raf === "function") &&
+                ("classList" in divTest) &&
+                typeof divTest.style.transition !== undefined;
 
-		if(this.canAnimate){
-			this.raf = this.raf.bind(window);
-		}
+            /* requestAnimationFrame queue */
+            this.frames = [];
+            //storage for _finisherHandler() method
+            this.finisher_show = false;
+            this.finisher_hide = false;
 
-		/* requestAnimationFrame queue */
-		this.frames = [];
-		this.framesRun = false;
-	}
+            //storage for eventlistener functions
+            this.handler = {};
 
-	show(el, options = {}){
-		if(!this.canAnimate){
-			this._show(el);
-		}
+            //animation in progress indicator
+            this.in_progress = false;
+        }
 
-		if(!this._isHidden(el)){
-			return;
-		}
+        insert(target, el, options = {}, before = null) {
+            this._hide(el);
+            target.insertBefore(el, before);
+            this.show(el, options);
+        }
 
-		/* merge defaults and users options */
-		let settings = this._calcOptions(options);
+        remove(el, options = {}) {
+            options.systemDoneCallback = function () {
+                el.parentNode.removeChild(el);
+            }
 
-		/* set handler on animation finish */
-		this._setFinishHandler(el, settings.track, settings.duration, () => {
-			this._removeClasses(el, settings.classNames.enterActive);
-			this._removeClasses(el, settings.classNames.enterTo);
-			settings.afterEnter(el);
-		});
+            this.hide(el, options);
+        }
 
-		this._show(el);
-		this._addClasses(el, settings.classNames.enter);
-		settings.beforeEnter(el);
-		
-		this._addFrame(() => {
-			this._addClasses(el, settings.classNames.enterActive);
-		});
+        _reset() {
+            if (this.frames.length > 0) {
+                this.frames = [];
+            }
+            this._removeClasses(this.el, Object.values(this.settings.classNames));
 
-		this._addFrame(() => {
-			this._removeClasses(el, settings.classNames.enter);
-			this._addClasses(el, settings.classNames.enterTo);
-		});
-	}
+            if (this.finisher_show) {
+                this._finishHandler(this.finisher_show, true);
+            }
+            if (this.finisher_hide) {
+                this._finishHandler(this.finisher_hide, true);
+            }
+        }
 
-	hide(el, options = {}){
-		if(!this.canAnimate){
-			this._hide(el);
-		}
+        show(el, options = {}) {
+            this.el = el;
+            //skip animate if requestAnimationFrame is not supported
+            if (!this.canAnimate) {
+                return this._show(el);
+            }
 
-		if(this._isHidden(el)){
-			return;
-		}
+            /* merge defaults and users options */
+            let settings = this._calcOptions(options);
+            this.settings = settings;
 
-		let settings = this._calcOptions(options);
+            //reset to initial state
+            this._reset();
 
-		this._setFinishHandler(el, settings.track, settings.duration, () => {
-			this._hide(el);
-			this._removeClasses(el, settings.classNames.leaveActive);
-			this._removeClasses(el, settings.classNames.leaveTo);
-			options.systemOnEnd && options.systemOnEnd();
-			settings.afterLeave(el);
-		});
+            // return if element is NOT hidden
+            if (!this._isHidden(el) && !this.in_progress) {
+                return;
+            }
 
-		this._addClasses(el, settings.classNames.leave);
-		
-		settings.beforeLeave(el);
-		
-		this._addFrame(() => {
-			this._addClasses(el, settings.classNames.leaveActive);
-		});
+            /* set handler on animation finish */
+            this.finisher_show = [el, settings.track, settings.duration, () => {
+                this._removeClasses(el, settings.classNames.enterActive);
+                this.finisher_show = false;
+                this.in_progress = false;
+                settings.systemDoneCallback(el);
+                settings.after(el);
+            }
+            ];
 
-		this._addFrame(() => {
-			this._addClasses(el, settings.classNames.leaveTo);
-			this._removeClasses(el, settings.classNames.leave);
-		});
-	}
+            this._addFrame(() => {
+                this.in_progress = true;
+                this._show(el);
+                this._finishHandler(this.finisher_show);
+                this._addClasses(el, [settings.classNames.enterActive, settings.classNames.enter]);
+                settings.before(el);
+            });
 
-	insert(target, el, options = {}, before = null){
-		this._hide(el);
-		target.insertBefore(el, before);
-		this.show(el, options);
-	}
+            this._addFrame(() => {
+                this._removeClasses(el, settings.classNames.enter);
+            });
 
-	remove(el, options = {}){
-		options.systemDoneCallback = function(){
-			el.parentNode.removeChild(el);
-		}
+            this._nextFrame();
+        }
 
-		this.hide(el, options);
-	}
+        hide(el, options = {}) {
+            this.el = el;
+            if (!this.canAnimate) {
+                return this._hide(el);
+            }
 
-	_setFinishHandler(el, track, duration, fn){
-		let eventName;
-		let isCssTrack = true;
+            let settings = this._calcOptions(options);
+            this.settings = settings;
 
-		if(track === 'transition'){
-			eventName = 'transitionend';
-		}
-		else if(track === 'animation'){
-			eventName = 'animationend';
-		}
-		else{
-			isCssTrack = false;
-		}
+            this._reset();
+            //return if element is hidden and animation not in progress
+            if (this._isHidden(el) && !this.in_progress) {
+                return;
+            }
 
-		if(isCssTrack){
-			let handler = function(){
-				el.removeEventListener(eventName, handler);
-				fn();
-			};
+            this.finisher_hide = [el, settings.track, settings.duration, () => {
+                this._hide(el);
+                this._removeClasses(el, settings.classNames.leaveActive);
+                options.systemOnEnd && options.systemOnEnd();
+                this.finisher_hide = false;
+                this.in_progress = false;
+                settings.systemDoneCallback(el);
+                settings.after(el);
+            }
+            ];
 
-			el.addEventListener(eventName, handler);
-		}
-		else{
-			setTimeout(fn, duration);
-		}
-	}
 
-	_calcOptions(options){
-		let name = (options.name !== undefined) ? options.name : 'dl-nothing-doing-class';
-		let classNames = this._mergeSettings(this._classNames(name), options.classNames);
+            this._addFrame(() => {
+                this.in_progress = true;
+                this._finishHandler(this.finisher_hide);
+                this._addClasses(el, settings.classNames.leaveActive);
+                settings.before(el);
+            });
 
-		delete options.classNames;
+            this._addFrame(() => {
+                this._addClasses(el, settings.classNames.leave);
+            });
 
-		let defaults = {
-			name: '',
-			track: 'transition',
-			duration: null,
-			classNames: classNames,
-			beforeEnter(el){},
-			afterEnter(el){},
-			beforeLeave(el){},
-			afterLeave(el){},
-			systemDoneCallback(el){}
-		}
+            this._nextFrame();
+        }
 
-		let norm = this._mergeSettings(defaults, options);
+        _finishHandler(arr, abort) {
+            let el = arr[0], track = arr[1], duration = arr[2], fn = arr[3], eventName, isCssTrack = true;
 
-		/* analize track & duration error */
+            if (track === 'transition') {
+                eventName = 'transitionend';
+            } else if (track === 'animation') {
+                eventName = 'animationend';
+            } else {
+                isCssTrack = false;
+            }
 
-		return norm;
-	}
+            if (abort) {
+                el.removeEventListener(eventName, this.handler[eventName]);
+                return;
+            }
 
-	_classNames(name){
-		return {
-			enter: name + '-enter',
-			enterActive: name + '-enter-active',
-			enterTo: name + '-enter-to',
-			leave: name + '-leave',
-			leaveActive: name + '-leave-active',
-			leaveTo: name + '-leave-to'
-		}
-	}
+            this.handler[eventName] = () => {
+                el.removeEventListener(eventName, this.handler[eventName]);
+                fn();
+            };
 
-	_addFrame(fn){
-		this.frames.push(fn);
+            if (isCssTrack) {
+                el.addEventListener(eventName, this.handler[eventName]);
+            } else {
+                setTimeout(fn, duration);
+            }
+        }
 
-		if(!this.framesRun){
-			this._nextFrame();
-		}
-	}
+        _calcOptions(options) {
+            let classNames = this._mergeSettings(this._classNames(options.name), options.classNames);
+            delete options.classNames;
 
-	_nextFrame(){
-		if(this.frames.length === 0){
-			this.framesRun = false;
-			return;
-		}
+            let defaults = {
+                name: '',
+                track: 'transition',
+                duration: null,
+                classNames: classNames,
+                before(el){
+                },
+                after(el){
+                },
+                systemDoneCallback(el){
+                }
+            }
+            return this._mergeSettings(defaults, options);
+        }
 
-		let frame = this.frames.shift();
+        _classNames(name) {
+            return !name ? {
+				enter: '',
+				enterActive: '',
+				leave: '',
+				leaveActive: '' 
+			} 
+            : {
+                enter: name + '-enter',
+                enterActive: name + '-enter-active',
+                leave: name + '-leave',
+                leaveActive: name + '-leave-active',
+            }
+        }
 
-		this.raf(() => {
-			this.raf(() => {
-				frame();
-				this._nextFrame();
-			});
-		});
-	}
+        _addFrame(fn) {
+            this.frames.push(fn);
+        }
 
-	_addClasses(el, str){
-		let arr = str.split(' ');
+        _nextFrame() {
+            if (this.frames.length === 0) {
+                return;
+            }
 
-		for(let i = 0; i < arr.length; i++){
-			el.classList.add(arr[i]);
-		}
-	}
+            let frame = this.frames.shift();
 
-	_removeClasses(el, str){
-		let arr = str.split(' ');
+            frame();
+            //we use double raf because of a bug https://bugs.chromium.org/p/chromium/issues/detail?id=675795
+            this.raf(() => {
+                this.raf(() => {
+                    this._nextFrame();
+                });
+            });
 
-		for(let i = 0; i < arr.length; i++){
-			el.classList.remove(arr[i]);
-		}
-	}
+        }
 
-	_mergeSettings(defaults, extra){
-		if(typeof extra !== "object"){
-			return defaults;
-		}
+        _addClasses(el, str) {
+            this._classList('add', el, str);
+        }
 
-		let res = {};
+        _removeClasses(el, str) {
+            this._classList('remove', el, str);
+        }
 
-		for(let k in defaults){
-			res[k] = (extra[k] !== undefined) ? extra[k] : defaults[k];
-		}
-		
-		return res;
-	}
+        _classList(action, el, str) {
+            if (typeof str === 'string') {
+                str = str.split(' ');
+            }
+            
+            for (let i = 0; i < str.length; i++) {
+				if(typeof str[i] === 'object'){
+					this._classList(action, el, str[i]);
+				}else if(str[i] !== ''){
+					el.classList[action](str[i]);
+				}
+            }
+        }
 
-	_hide(el){
-		el.style.display = 'none';
-	}
+        _mergeSettings(def, extra) {
+            return typeof extra !== "object" ? def : Object.assign(def, extra);
+        }
 
-	_show(el){
-		el.style.removeProperty('display');
-		
-		if(this._isHidden(el)){
-			el.style.display = 'block';
-		}
-	}
+        _hide(el) {
+            el.style.display = 'none';
+        }
 
-	_isHidden(el){
-		return this._getStyle(el, 'display') === 'none';
-	}
+        _show(el) {
+            el.style.display = 'block';
+        }
 
-	_getStyle(el, prop){
-		return getComputedStyle(el)[prop];
-	}
-}
+        _isHidden(el) {
+            return this._getStyle(el, 'display') === 'none';
+        }
+
+        _getStyle(el, prop) {
+            return getComputedStyle(el)[prop];
+        }
+    }
+    window.DLAnimate = new DLAnimate();
+}();

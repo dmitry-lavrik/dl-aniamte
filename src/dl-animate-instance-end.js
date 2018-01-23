@@ -1,3 +1,0 @@
-
-	window.DLAnimate = new DLAnimate();
-})();
